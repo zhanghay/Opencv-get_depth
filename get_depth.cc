@@ -404,10 +404,9 @@ int main(int argc, char const *argv[])
       cv::Mat frame=depth.clone();
       cv::Mat frameMessage=cv::Mat(200, 500, CV_8UC3);
       frameMessage=cv::Scalar(49,52,49);
-      cvui::init("Message");
+      cvui::init("Message"，2);
       cvui::context("Message");
-      cvui::init(WINDOW_NAME);
-      //depth.convertTo(depth,CV_8UC1);
+      cvui::init(WINDOW_NAME，2);
       cvui::imshow(WINDOW_NAME,frame);
       //cv::Mat depthShoot = image_depth.img->To(ImageFormat::DEPTH_RAW)->ToMat(); //深度图的Mat
       cvui::printf(frameMessage, 10, 10, "In window1, mouse is at: %d,%d", cvui::mouse(WINDOW_NAME).x, cvui::mouse(WINDOW_NAME).y);

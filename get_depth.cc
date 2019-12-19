@@ -257,14 +257,6 @@ int main(int argc, char const *argv[])
   cv::Mat frame;
   cvui::init(WINDOW_NAME);
 
-
-
-
-
-
-
-
-
   Camera cam;
   DeviceInfo dev_info;
   if (!util::select(cam, &dev_info))
@@ -390,7 +382,7 @@ int main(int argc, char const *argv[])
     //当读取到image depth
     //  //  //  //  //  //  //  
     //-------------------------------------
-    if (image_depth.img)
+  /*   if (image_depth.img)
         {
            cv::Mat depth = image_depth.img->To(ImageFormat::DEPTH_RAW)->ToMat(); //深度图的Mat
 
@@ -404,11 +396,10 @@ int main(int argc, char const *argv[])
           depth_region.ShowElems<ushort>(depth, [](const ushort &elem) {return std::to_string(elem); }, 80, depth_info);
       
          }
+*/
 
-
-    char Key=cv::waitKey(1);
-    if(Key=='s'||Key=='S')
-    {
+    if (image_depth.img)
+    {  
       //cv::namedWindow("Shoot");
       cv::Mat frame=depth.clone();
       cv::Mat frameMessage=cv::Mat(200, 500, CV_8UC3);
@@ -427,16 +418,11 @@ int main(int argc, char const *argv[])
       //cv::setMouseCallback("depth", OnDepthMouseCallbackShoot, &depth_region);
       //depth_region.DrawRect(depthShoot);
       //cv::imshow("Shoot", depthShoot);
-          
+    }
        
 
 //          depth_region.ShowElems<ushort>(depthShoot, [](const ushort &elem) {return std::to_string(elem); }, 80, depth_info);
           
-
-          
-         
-
-    }
     
     char key = static_cast<char>(cv::waitKey(1));
     if (key == 27 || key == 'q' || key == 'Q')

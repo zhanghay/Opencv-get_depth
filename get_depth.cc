@@ -5,7 +5,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
-#include <strstream>
+//#include <strstream>
 
 #include "mynteyed/camera.h"
 #include "mynteyed/utils.h"
@@ -18,7 +18,7 @@
 
 #define WINDOW_NAME "CVUI hello world"
 
-#include <fstream>
+//#include <fstream>
 typedef cv::Vec<float, 3> Vec3f;
 
 namespace 
@@ -160,9 +160,7 @@ class DepthRegion {
     dist /= 2.00;                                  //计算距离；单位：M
     std::cout << "Distance:" << dist << std::endl; //定义法输出
                                                    ///dist is right !!!!!!!!!!!!!!!!
-    //---------------\\
-    //---------------\\
-
+    
 
     //------------
     //------------
@@ -178,9 +176,10 @@ class DepthRegion {
     theWorldx=(point_.x+u_0)*dist/f_x;
     theWorldy=(point_.y+v_0)*dist/f_x;
     std::cout<<"("<<theWorldx<<","<<theWorldy<<")"<<std::endl<<std::endl;
-    //-------------------------------------\\
-    //-------------------------------------\\
-    //-------------------------------------\\
+    
+    //-------------------------------------
+    //-------------------------------------
+    //-------------------------------------
 
 
     cv::imshow("region", im); //10/29/18:31
@@ -323,8 +322,8 @@ int main(int argc, char const *argv[])
   //窗口                                                 |
   //-----------------------------------------------------|
   cv::namedWindow("color");
-  cv::namedWindow("depth");
-  cv::namedWindow("region"); //数据窗口
+  //cv::namedWindow("depth");
+  //cv::namedWindow("region"); //数据窗口
                              // cv::namedWindow("xyzs");
                              //创建窗口
   DepthRegion depth_region(3);
@@ -365,7 +364,7 @@ int main(int argc, char const *argv[])
     auto image_color = cam.GetStreamData(ImageType::IMAGE_LEFT_COLOR);
     if (image_color.img)
     {
-      cv::Mat color = image_color.img->To(ImageFormat::COLOR_BGR)->ToMat();
+      cv::Mat color = image_color.img->To(ImageFormat::COLOR_BGR)->ToMat();//ToMat
       painter.DrawSize(color, CVPainter::TOP_LEFT);
 
       painter.DrawStreamData(color, image_color, CVPainter::TOP_RIGHT);
@@ -400,21 +399,24 @@ int main(int argc, char const *argv[])
 
     if (image_depth.img)
     {  
+      cv::Mat depth = image_depth.img->To(ImageFormat::DEPTH_RAW)->ToMat(); //ToMat深度图的Mat
       //cv::namedWindow("Shoot");
       cv::Mat frame=depth.clone();
       cv::Mat frameMessage=cv::Mat(200, 500, CV_8UC3);
       frameMessage=cv::Scalar(49,52,49);
       cvui::init("Message");
+      cvui::context("Message");
       cvui::init(WINDOW_NAME);
+      //depth.convertTo(depth,CV_8UC1);
       cvui::imshow(WINDOW_NAME,frame);
-      cvui::imshow("Message",frameMessage);
       //cv::Mat depthShoot = image_depth.img->To(ImageFormat::DEPTH_RAW)->ToMat(); //深度图的Mat
-      cvui::printf(frameMessage,10,10,"In frame,mouse is at:%d,%d",cvui::mouse(WINDOW_NAME).x,cvui::mouse(WINDOW_NAME).y);
+      cvui::printf(frameMessage, 10, 10, "In window1, mouse is at: %d,%d", cvui::mouse(WINDOW_NAME).x, cvui::mouse(WINDOW_NAME).y);
       if(cvui::mouse(WINDOW_NAME,cvui::LEFT_BUTTON,cvui::IS_DOWN))
       {
         cvui::printf(frameMessage,10,90,"frame:LEFT_BUTTON is Down");
-        cvui::printf(frameMessage,10,110,"frame mouse is down at:%d,%d",cvui::mouse(WINDOW_NAME).x,cvui::mouse(WINDOW_NAME).y);
+        //cvui::printf(frameMessage,10,110,"frame mouse is down at:%d,%d",cvui::mouse(WINDOW_NAME).x,cvui::mouse(WINDOW_NAME).y);
       }
+      cvui::imshow("Message",frameMessage);
       //cv::setMouseCallback("depth", OnDepthMouseCallbackShoot, &depth_region);
       //depth_region.DrawRect(depthShoot);
       //cv::imshow("Shoot", depthShoot);

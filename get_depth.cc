@@ -167,15 +167,15 @@ class DepthRegion {
     //-------------------------------------to get (x,y)---------//
     //------------
     //------------
-    double theWorldx,theWorldy;
+    double theWorld_x,theWorld_y;
     double f_x=Q.at<double>(2,3),
            //b=1.0/Q.at<double>(3,2),
            u_0=Q.at<double>(0,3),
            v_0=Q.at<double>(1,3);
 
-    theWorldx=(point_.x+u_0)*dist/f_x;
-    theWorldy=(point_.y+v_0)*dist/f_x;
-    std::cout<<"("<<theWorldx<<","<<theWorldy<<")"<<std::endl<<std::endl;
+    theWorld_x=(point_.x+u_0)*dist/f_x;
+    theWorld_y=(point_.y+v_0)*dist/f_x;
+    std::cout<<"("<<theWorld_x<<","<<theWorld_y<<")"<<std::endl<<std::endl;
     
     //-------------------------------------
     //-------------------------------------
@@ -329,8 +329,8 @@ int main(int argc, char const *argv[])
   DepthRegion depth_region(3);
   
   
-  auto depth_info = [](
-                        const cv::Mat &depth, const cv::Point &point, const std::uint32_t &n) {
+  auto depth_info = [](const cv::Mat &depth, const cv::Point &point, const std::uint32_t &n)
+  {
     /*
     int row_beg = point.y - n, row_end = point.y + n + 1;
     int col_beg = point.x - n, col_end = point.x + n + 1;
@@ -352,12 +352,16 @@ int main(int argc, char const *argv[])
   //depth 窗口的信息
   CVPainter painter;
   util::Counter counter;
-  //
-  //
+  cvui::init("Message");
+  cvui::context("Message");
+  cvui::init(WINDOW_NAME);
+  cv::Mat frameMessage=cv::Mat(200,500,CV_8UC3);  
+  cv::Rect rectangle(0,0,0,0);
+  //  //
   //死循环
   //
-  for (;;)
-  {
+ for (;;)
+ {
     cam.WaitForStream();
     counter.Update();
 
@@ -402,19 +406,44 @@ int main(int argc, char const *argv[])
       cv::Mat depth = image_depth.img->To(ImageFormat::DEPTH_RAW)->ToMat(); //ToMat深度图的Mat
       //cv::namedWindow("Shoot");
       cv::Mat frame=depth.clone();
-      cv::Mat frameMessage=cv::Mat(200, 500, CV_8UC3);
       frameMessage=cv::Scalar(49,52,49);
-      cvui::init("Message"，2);
-      cvui::context("Message");
-      cvui::init(WINDOW_NAME，2);
-      cvui::imshow(WINDOW_NAME,frame);
+     
+      
       //cv::Mat depthShoot = image_depth.img->To(ImageFormat::DEPTH_RAW)->ToMat(); //深度图的Mat
       cvui::printf(frameMessage, 10, 10, "In window1, mouse is at: %d,%d", cvui::mouse(WINDOW_NAME).x, cvui::mouse(WINDOW_NAME).y);
-      if(cvui::mouse(WINDOW_NAME,cvui::LEFT_BUTTON,cvui::IS_DOWN))
+      cvui::printf(frameMessage,10,30,"In the point,the value is:%d",frame.at<double>((int)(cvui::mouse(WINDOW_NAME).y), (int)(cvui::mouse(WINDOW_NAME).x)));
+      //frame是个二维矩阵 和depth也是
+      //cv::setMouseCallback(WINDOW_NAME, OnDepthMouseCallback, &depth_region);
+      int theXatframe=cvui::mouse(WINDOW_NAME).x;
+      int theYatframe=cvui::mouse(WINDOW_NAME).y; 
+      depth_region.DrawRect(frame);
+      if(cvui::mouse(WINDOW_NAME,cvui::DOWN))
       {
         cvui::printf(frameMessage,10,90,"frame:LEFT_BUTTON is Down");
+        rectangle.x=cvui::mouse(WINDOW_NAME).x;
+        rectangle.y=cvui::mouse(WINDOW_NAME).y;
         //cvui::printf(frameMessage,10,110,"frame mouse is down at:%d,%d",cvui::mouse(WINDOW_NAME).x,cvui::mouse(WINDOW_NAME).y);
       }
+      if(cvui::mouse(WINDOW_NAME, cvui::IS_DOWN))
+      { 
+        rectangle.width=cvui::mouse(WINDOW_NAME).x-rectangle.x;
+        rectangle.height=cvui::mouse(WINDOW_NAME).y-rectangle.y;
+      }
+
+      if(cvui::mouse(WINDOW_NAME, cvui::UP))
+      {
+        rectangle.x=0;
+        rectangle.y=0;
+        rectangle.width=0;
+        rectangle.height=0;
+      }
+      if(cvui::mouse(WINDOW_NAME,cvui::CLICK))
+      {
+        cvui::text(frameMessage,10,70,"点击鼠标");
+      }
+      cvui::rect(frame,rectangle.x,rectangle.y,rectangle.width,rectangle.height,0xff0000,0xd0000ff);
+      cvui::update();
+      cvui::imshow(WINDOW_NAME,frame);
       cvui::imshow("Message",frameMessage);
       //cv::setMouseCallback("depth", OnDepthMouseCallbackShoot, &depth_region);
       //depth_region.DrawRect(depthShoot);
@@ -423,15 +452,14 @@ int main(int argc, char const *argv[])
        
 
 //          depth_region.ShowElems<ushort>(depthShoot, [](const ushort &elem) {return std::to_string(elem); }, 80, depth_info);
-          
-    
+       
     char key = static_cast<char>(cv::waitKey(1));
     if (key == 27 || key == 'q' || key == 'Q')
     { // ESC/Q
       break;
     }
-  }
-
+  
+}
   cam.Close();
   cv::destroyAllWindows();
   return 0;
